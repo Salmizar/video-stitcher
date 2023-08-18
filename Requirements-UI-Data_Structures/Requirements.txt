@@ -1,0 +1,28 @@
+Must have:
+- Easy start, just 2 buttons to select files and then view.
+- Ability to reset reach selected file before viewing.
+- Thumbnails of videos on timeline.
+- Ability to trim start and end of each video.
+- Ability to select 2 files and then have the system stitch them together and send it to the user.
+- Ability to playback the stitched files.
+- Next and Previous buttons on either side of play buttons, under video.
+- Next and Previous buttons will fast forward to the start of the next video. If on the last video, it restart the first video.
+- export button will save file in desired format and send back to client.
+- Add progress bars where possible. Uploading files, processing export.
+- Button right of video viewer will have a mute button
+- Button left of video viewer will have current/total time.
+- When files are uploaded for stitching, a session is created to which the user can return later to and edit those files again.
+- Mobile first.
+- scrollbar for timeline, when necessary.
+- When videos are trimmed, display a half opacity, black overlay with deviding line.
+- Must be able to seemlessly playback trimmed videos in realtime.
+- While scrubbing playhead, video playback updates.
+- Display filename of video on bottom left of each video, in the timeline.
+- Video fit to screen, up to 100%.
+
+Nice to have:
+- Ability to stitch more than2 videos.
+- Ability to add a music track.
+- crossfade video option.
+- Ability to have keyframe control for trimming.
+- Audio spectrum analyser. 
