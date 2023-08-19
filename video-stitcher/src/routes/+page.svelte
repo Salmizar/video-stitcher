@@ -35,7 +35,7 @@
     if (uploading) {
         uploading = false;
       } else {
-        goto(`/view${sessionId}`);
+        goto(`/view/${sessionId}`);
       }
   }
 	function sendFiles() {
@@ -114,8 +114,8 @@
 	<p class="text-xs text-slate-500">Maximum 250MB per file</p>
 {/if}
 <div class="hidden">
-	<input id="file1" type="file" on:change={fileSelected} />
-	<input id="file2" type="file" on:change={fileSelected} />
+	<input accept=".mp4,.ogg,.webm" id="file1" type="file" on:change={fileSelected} />
+	<input accept=".mp4,.ogg,.webm" id="file2" type="file" on:change={fileSelected} />
 </div>
 
 <style lang="postcss">
@@ -176,7 +176,7 @@
 		min-width: 0%;
 		height: 35px;
 		background-color: blue;
-		opacity: 0.3;
+		opacity: 0.5;
 	}
 	.file-progress2 {
 		left: auto;
