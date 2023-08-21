@@ -2,8 +2,8 @@
 	import DeleteForever from 'svelte-material-icons/DeleteForever.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { v4 as uuidv4 } from 'uuid';
-	import uploadFiles from '$lib/files.js';
-  import { goto } from '$app/navigation';
+	import uploadFiles from '$lib/files';
+	import { goto } from '$app/navigation';
 	const maxFileSize = 262144000; //250MB
 	let uploading = false;
 	let file1 = null;
@@ -31,23 +31,23 @@
 	function sendFile2Progress(e) {
 		file2Progress = Math.round((e.loaded / e.total) * 100);
 	}
-  function viewStitcher(sessionId) {
-    if (uploading) {
-        uploading = false;
-      } else {
-        goto(`/view/${sessionId}`);
-      }
-  }
+	function viewStitcher(sessionId) {
+		if (uploading) {
+			uploading = false;
+		} else {
+			goto(`/view/${sessionId}`);
+		}
+	}
 	function sendFiles() {
 		uploading = true;
 		const sessionId = uuidv4();
 		let url = import.meta.env.VITE_API_URL + `/?filename=1.${file1.name}&session=${sessionId}`;
 		uploadFiles(file1, url, sendFile1Progress).then(() => {
-      viewStitcher(sessionId);
+			viewStitcher(sessionId);
 		});
 		url = import.meta.env.VITE_API_URL + `/?filename=2.${file2.name}&session=${sessionId}`;
 		uploadFiles(file2, url, sendFile2Progress).then(() => {
-      viewStitcher(sessionId);
+			viewStitcher(sessionId);
 		});
 	}
 </script>
@@ -57,11 +57,11 @@
 	<img alt="Logo" width="135" height="99" src="logo.png" />
 </header>
 <p class="text-lg font-normal mt-10" style="min-height:60px">
-	{#if file1Progress===100&&file2Progress===100}
-    <span in:fade>
-      Uploading complete. Files are processing to generate thumbnails and get ready for stitching
-    </span>
-  {:else if file1 != null && file2 != null}
+	{#if file1Progress === 100 && file2Progress === 100}
+		<span in:fade>
+			Uploading complete. Files are processing to generate thumbnails and get ready for stitching
+		</span>
+	{:else if file1 != null && file2 != null}
 		<span in:fade>
 			If you're readonly, let's view the stitched VideoColorSpace. We can also trim them if
 			necessary
@@ -108,7 +108,8 @@
 		on:click={sendFiles}
 		class={uploading ? 'btn mt-5 text-gray-600 bg-gray-300 font-bold' : 'btn mt-5 btn-blue'}
 	>
-		{#if file1Progress === 100 && file2Progress === 100}<span in:fade>Processing...</span>{:else if uploading}<span in:fade>Uploading...</span>{:else}Trim and View{/if}
+		{#if file1Progress === 100 && file2Progress === 100}<span in:fade>Processing...</span
+			>{:else if uploading}<span in:fade>Uploading...</span>{:else}Trim and View{/if}
 	</button>
 {:else}
 	<p class="text-xs text-slate-500">Maximum 250MB per file</p>
