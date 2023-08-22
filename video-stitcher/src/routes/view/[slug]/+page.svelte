@@ -11,6 +11,7 @@
 	const sessionId = $page.params.slug;
 	let videoWidth = 0;
 	let videoHeight = 0;
+	let paused = true;
 	let video1 = {
         trimStart:0,
         trimEnd:0
@@ -22,10 +23,12 @@
 	onMount(() => {
 		api_get(api_url + '/' + sessionId)
 			.then((videoFileNames) => {
+				const isSecondVideo = (element, index) => index > 0 && element.fileName.indexOf('png') === -1;
+				const video2Index = Array(videoFileNames)[0].findIndex(isSecondVideo);
 				if (videoFileNames.length > 0) {
 					video1 = {
 						url: api_url + '/files/' + sessionId + '?filename=' + videoFileNames[0].fileName,
-                        thumbnails: videoFileNames.slice(1,videoFileNames.length / 2)
+                        thumbnails: videoFileNames.slice(1,video2Index)
 					};
 					video2 = {
 						url:
@@ -33,8 +36,8 @@
 							'/files/' +
 							sessionId +
 							'?filename=' +
-							videoFileNames[videoFileNames.length / 2].fileName,
-                            thumbnails: videoFileNames.slice(videoFileNames.length / 2+1)
+							videoFileNames[video2Index].fileName,
+                            thumbnails: videoFileNames.slice(video2Index+1)
 					};
 				} else {
 					alert(`This session doesn't exist`);
@@ -71,19 +74,50 @@
             video1.target.addEventListener('ended', videoEnded);
             video2.target.addEventListener('ended', videoEnded);
         }
+	};
+	const focusVideo = (e) => {
+		if (Number(video1.target.style.zIndex) === e.detail) {
+			video1.target.style.zIndex = ((e.detail===1)?2:1);
+        	video2.target.style.zIndex = ((e.detail===2)?2:1);
+		}
+	};
+	const togglePlay = (e) => {
+		if (Number(video1.target.style.zIndex)===2) {
+			if (paused) {
+				video1.target.play();
+			} else {
+				video1.target.pause();
+			}
+		} else {
+			if (paused) {
+				video2.target.play();
+			} else {
+				video2.target.pause();
+			}
+		}
+		paused = !paused;
 	}
     const videoEnded = (e) => {
-        if (e.target.id ==='video1') {
-            video1.target.style = "z-index:1";
-            video2.target.style = "z-index:2";
-            //video2.target.play();
-        }
-    }
+		if (!paused) {
+			if (e.target.id ==='video1') {
+				video1.target.style.zIndex = 1;
+				video2.target.style.zIndex = 2;
+				video2.target.play();
+			} else {
+				video1.target.style.zIndex = 2;
+				video2.target.style.zIndex = 1;
+				video1.target.currentTime = 0;
+				paused = true;
+			}
+		}
+    };
 </script>
 
 <div class="container">
 	<header>
-		<img alt="Video X Stitcher" width="120" height="30" src="../videoxstitcher.png" />
+		<a title="Video X Stitcher" href="/">
+			<img alt="Video X Stitcher" width="120" height="30" src="../videoxstitcher.png" />
+		</a>
 	</header>
 	<main>
 		<div class="video-container" style="max-width: {videoWidth}px; max-height: {videoHeight}px;">
@@ -101,14 +135,14 @@
 			{/if}
 			{#if video1.duration && video2.duration}
 				<div class="video-controls" style="top: {videoHeight - 30}px;">
-					<Controls video1={video1} video2={video2} />
+					<Controls on:focusVideo={focusVideo} on:togglePlay={togglePlay} paused={paused} video1={video1} video2={video2} />
 				</div>
 			{/if}
 		</div>
 	</main>
 	<footer>
         {#if video1.duration && video2.duration}
-            <Timeline video1={video1} video2={video2} />
+            <Timeline on:focusVideo={focusVideo} video1={video1} video2={video2} />
         {/if}
         <Trim />
         <Export />

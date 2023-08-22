@@ -62,7 +62,7 @@ router.post('/', upload.single("file"), function (request, response) {
                 //console.log('Screenshots taken');
             })
             .screenshots({
-                count: 5,
+                count: request.query.p,
                 filename: '%b.png',
                 folder: saveLocation,
                 size: '112x84'

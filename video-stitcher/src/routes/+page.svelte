@@ -10,6 +10,8 @@
 	let file2 = null;
 	let file1Progress = 0;
 	let file2Progress = 0;
+	let file1Duration;
+	let file2Duration;
 	const handleSelectFile = (e) => {
 		document.getElementById('file' + e.currentTarget.id).click();
 	}
@@ -20,8 +22,21 @@
 		} else {
 			if (e.currentTarget.id === 'file1') {
 				file1 = e.currentTarget.files[0];
+				//Get video duration, so we can determine how many thumbnails to generate for each video
+				const url = URL.createObjectURL(file1);
+				const $video = document.createElement("video");
+				$video.src = url;
+				$video.addEventListener("loadedmetadata", function () {
+					file1Duration = this.duration;
+				});
 			} else {
 				file2 = e.currentTarget.files[0];
+				const url = URL.createObjectURL(file2);
+				const $video = document.createElement("video");
+				$video.src = url;
+				$video.addEventListener("loadedmetadata", function () {
+					file2Duration = this.duration;
+				});
 			}
 		}
 	}
@@ -41,11 +56,14 @@
 	const sendFiles = () => {
 		uploading = true;
 		const sessionId = uuidv4();
-		let url = import.meta.env.VITE_API_URL + `/?filename=1.${file1.name}&session=${sessionId}`;
+		const totalTime = Math.floor(file1Duration + file2Duration);
+        let videoPercentage = Math.round(Math.floor(file1Duration)/totalTime*10);
+		let url = import.meta.env.VITE_API_URL + `/?filename=1.${file1.name}&session=${sessionId}&p=${videoPercentage}`;
 		uploadFiles(file1, url, sendFile1Progress).then(() => {
 			viewStitcher(sessionId);
 		});
-		url = import.meta.env.VITE_API_URL + `/?filename=2.${file2.name}&session=${sessionId}`;
+        videoPercentage = Math.round(Math.floor(file2Duration)/totalTime*10);
+		url = import.meta.env.VITE_API_URL + `/?filename=2.${file2.name}&session=${sessionId}&p=${videoPercentage}`;
 		uploadFiles(file2, url, sendFile2Progress).then(() => {
 			viewStitcher(sessionId);
 		});
