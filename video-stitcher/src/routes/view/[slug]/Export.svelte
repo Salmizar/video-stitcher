@@ -14,7 +14,8 @@
 		@apply bg-blue-700;
 	}
     .export-options {
-        margin: 10px 10px;
-        float:right;
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
     }
 </style>

@@ -10,10 +10,10 @@
 	let file2 = null;
 	let file1Progress = 0;
 	let file2Progress = 0;
-	function handleSelectFile(e) {
+	const handleSelectFile = (e) => {
 		document.getElementById('file' + e.currentTarget.id).click();
 	}
-	function fileSelected(e) {
+	const fileSelected = (e) => {
 		if (e.currentTarget.files[0].size > maxFileSize) {
 			alert('max file limit of 250MB. Please selected a smaller file.');
 			e.currentTarget.value = '';
@@ -25,20 +25,20 @@
 			}
 		}
 	}
-	function sendFile1Progress(e) {
+	const sendFile1Progress = (e) => {
 		file1Progress = Math.round((e.loaded / e.total) * 100);
 	}
-	function sendFile2Progress(e) {
+	const sendFile2Progress = (e) => {
 		file2Progress = Math.round((e.loaded / e.total) * 100);
 	}
-	function viewStitcher(sessionId) {
+	const viewStitcher = (sessionId) => {
 		if (uploading) {
 			uploading = false;
 		} else {
 			goto(`/view/${sessionId}`);
 		}
 	}
-	function sendFiles() {
+	const sendFiles = () => {
 		uploading = true;
 		const sessionId = uuidv4();
 		let url = import.meta.env.VITE_API_URL + `/?filename=1.${file1.name}&session=${sessionId}`;
@@ -115,8 +115,9 @@
 	<p class="text-xs text-slate-500">Maximum 250MB per file</p>
 {/if}
 <div class="hidden">
-	<input accept=".mp4,.ogg,.webm" id="file1" type="file" on:change={fileSelected} />
-	<input accept=".mp4,.ogg,.webm" id="file2" type="file" on:change={fileSelected} />
+	<!--.mp4,.ogg,.webm-->
+	<input accept=".mp4" id="file1" type="file" on:change={fileSelected} />
+	<input accept=".mp4" id="file2" type="file" on:change={fileSelected} />
 </div>
 
 <style lang="postcss">
