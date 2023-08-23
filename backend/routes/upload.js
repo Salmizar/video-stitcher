@@ -65,7 +65,7 @@ router.post('/', upload.single("file"), function (request, response) {
                 count: request.query.p,
                 filename: '%b.png',
                 folder: saveLocation,
-                size: '112x84'
+                size: '112x85'
 
             });
     } else if (!isValidFormat(request.query.filename)) {

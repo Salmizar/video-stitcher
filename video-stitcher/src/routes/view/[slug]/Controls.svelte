@@ -17,14 +17,14 @@
 	let canSkipBack = false;
 	let canSkipForward = true;
 	const videoTimeUpdated = (e) => {
-		canSkipBack = (video1.target.currentTime>0);
-		canSkipForward = (e.target.id==='video1' && e.target.currentTime<e.target.duration);
+		canSkipBack = video1.target.currentTime > 0;
+		canSkipForward = e.target.id === 'video1' && e.target.currentTime < e.target.duration;
 		let timePadding = 0;
-		if (e.target.id==='video2') {
+		if (e.target.id === 'video2') {
 			timePadding = video1.duration;
 		}
 		currentTime = convertTime(timePadding + e.target.currentTime);
-	}
+	};
 	video1.target.addEventListener('timeupdate', videoTimeUpdated);
 	video2.target.addEventListener('timeupdate', videoTimeUpdated);
 	let muted = video1.target.muted;
@@ -36,7 +36,7 @@
 	const togglePlay = () => {
 		dispatch('togglePlay');
 		paused = !paused;
-	}
+	};
 	const skipForward = () => {
 		if (canSkipForward) {
 			if (!video1.target.paused) {
@@ -46,7 +46,7 @@
 			video2.target.currentTime = 0;
 			dispatch('focusVideo', 2);
 		}
-	}
+	};
 	const skipBack = () => {
 		if (canSkipBack) {
 			if (!video2.target.paused || !video1.target.paused) {
@@ -58,27 +58,55 @@
 			}
 			video2.target.currentTime = 0;
 		}
-	}
+	};
 </script>
 
 <div class="controls">
 	<div class="time">{currentTime} / {videosTotalTime}</div>
 	<div class="playback-controls">
-		<div title="Skip Back" role="button" tabindex="-4" on:click={skipBack} on:keypress={skipBack} class="{canSkipBack?'enabled':'disabled'}">
+		<div
+			title="Skip Back"
+			role="button"
+			tabindex="-4"
+			on:click={skipBack}
+			on:keypress={skipBack}
+			class={canSkipBack ? 'enabled' : 'disabled'}
+		>
 			<SkipPrevious width="24" height="24" />
 		</div>
-		<div class="play" role="button" tabindex="-3" title="Toggle Play/Pause" on:click={togglePlay} on:keypress={skipBack}>
+		<div
+			class="play"
+			role="button"
+			tabindex="-3"
+			title="Toggle Play/Pause"
+			on:click={togglePlay}
+			on:keypress={skipBack}
+		>
 			{#if paused}
 				<Play width="24" height="24" />
 			{:else}
 				<Pause width="24" height="24" />
 			{/if}
 		</div>
-		<div title="Skip Forward" role="button" tabindex="-2" on:click={skipForward} on:keypress={skipBack} class="{canSkipForward?'enabled':'disabled'}">
+		<div
+			title="Skip Forward"
+			role="button"
+			tabindex="-2"
+			on:click={skipForward}
+			on:keypress={skipBack}
+			class={canSkipForward ? 'enabled' : 'disabled'}
+		>
 			<SkipNext width="24" height="24" />
 		</div>
 	</div>
-	<div class="volume" role="button" tabindex="-1" title="Toggle Mute" on:click={toggleMute} on:keypress={skipBack}>
+	<div
+		class="volume"
+		role="button"
+		tabindex="-1"
+		title="Toggle Mute"
+		on:click={toggleMute}
+		on:keypress={skipBack}
+	>
 		{#if muted}
 			<VolumeMute width="24" height="24" />
 		{:else}

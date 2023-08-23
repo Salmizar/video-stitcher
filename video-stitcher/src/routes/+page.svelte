@@ -14,7 +14,7 @@
 	let file2Duration;
 	const handleSelectFile = (e) => {
 		document.getElementById('file' + e.currentTarget.id).click();
-	}
+	};
 	const fileSelected = (e) => {
 		if (e.currentTarget.files[0].size > maxFileSize) {
 			alert('max file limit of 250MB. Please selected a smaller file.');
@@ -24,50 +24,54 @@
 				file1 = e.currentTarget.files[0];
 				//Get video duration, so we can determine how many thumbnails to generate for each video
 				const url = URL.createObjectURL(file1);
-				const $video = document.createElement("video");
+				const $video = document.createElement('video');
 				$video.src = url;
-				$video.addEventListener("loadedmetadata", function () {
+				$video.addEventListener('loadedmetadata', function () {
 					file1Duration = this.duration;
 				});
 			} else {
 				file2 = e.currentTarget.files[0];
 				const url = URL.createObjectURL(file2);
-				const $video = document.createElement("video");
+				const $video = document.createElement('video');
 				$video.src = url;
-				$video.addEventListener("loadedmetadata", function () {
+				$video.addEventListener('loadedmetadata', function () {
 					file2Duration = this.duration;
 				});
 			}
 		}
-	}
+	};
 	const sendFile1Progress = (e) => {
 		file1Progress = Math.round((e.loaded / e.total) * 100);
-	}
+	};
 	const sendFile2Progress = (e) => {
 		file2Progress = Math.round((e.loaded / e.total) * 100);
-	}
+	};
 	const viewStitcher = (sessionId) => {
 		if (uploading) {
 			uploading = false;
 		} else {
 			goto(`/view/${sessionId}`);
 		}
-	}
+	};
 	const sendFiles = () => {
 		uploading = true;
 		const sessionId = uuidv4();
 		const totalTime = Math.floor(file1Duration + file2Duration);
-        let videoPercentage = Math.round(Math.floor(file1Duration)/totalTime*10);
-		let url = import.meta.env.VITE_API_URL + `/?filename=1.${file1.name}&session=${sessionId}&p=${videoPercentage}`;
+		let videoPercentage = Math.round((Math.floor(file1Duration) / totalTime) * 10);
+		let url =
+			import.meta.env.VITE_API_URL +
+			`/?filename=1.${file1.name}&session=${sessionId}&p=${videoPercentage}`;
 		uploadFiles(file1, url, sendFile1Progress).then(() => {
 			viewStitcher(sessionId);
 		});
-        videoPercentage = Math.round(Math.floor(file2Duration)/totalTime*10);
-		url = import.meta.env.VITE_API_URL + `/?filename=2.${file2.name}&session=${sessionId}&p=${videoPercentage}`;
+		videoPercentage = Math.round((Math.floor(file2Duration) / totalTime) * 10);
+		url =
+			import.meta.env.VITE_API_URL +
+			`/?filename=2.${file2.name}&session=${sessionId}&p=${videoPercentage}`;
 		uploadFiles(file2, url, sendFile2Progress).then(() => {
 			viewStitcher(sessionId);
 		});
-	}
+	};
 </script>
 
 <header>
@@ -97,7 +101,15 @@
 		<div in:fade out:fade class="file-selected file-selected1">
 			<div style="width:{file1Progress}%" class="file-progress" />
 			<span class="file-name">{file1.name}</span>
-			<span id="1" class="delete-icon" title="Select a new file" on:click={handleSelectFile}>
+			<span
+				id="1"
+				role="button"
+				tabindex="-1"
+				class="delete-icon"
+				title="Select a new file"
+				on:click={handleSelectFile}
+				on:keypress={handleSelectFile}
+			>
 				<DeleteForever width="24" height="24" />
 			</span>
 		</div>
@@ -110,7 +122,15 @@
 	{:else}
 		<div in:fade out:fade class="file-selected file-selected2">
 			<div style="width:{file2Progress}%" class="file-progress file-progress2" />
-			<span id="2" class="delete-icon" title="Select a new file" on:click={handleSelectFile}>
+			<span
+				id="2"
+				role="button"
+				tabindex="-2"
+				class="delete-icon"
+				title="Select a new file"
+				on:click={handleSelectFile}
+				on:keypress={handleSelectFile}
+			>
 				<DeleteForever width="24" height="24" />
 			</span>
 			<span class="file-name">{file2.name}</span>

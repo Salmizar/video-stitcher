@@ -23,3 +23,10 @@ Preview production build:
 ```bash
 npm run preview
 ```
+
+## Running lint
+
+```bash
+npm run format
+npm run lint
+```

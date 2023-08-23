@@ -1,8 +1,7 @@
 <div class="export-options">
-    <button title="Export Videos" class="btn btn-blue">
-        export
-    </button>
+	<button title="Export Videos" class="btn btn-blue"> export </button>
 </div>
+
 <style>
 	.btn {
 		@apply font-bold py-2 px-4 rounded;
@@ -13,9 +12,9 @@
 	.btn-blue:hover {
 		@apply bg-blue-700;
 	}
-    .export-options {
+	.export-options {
 		position: absolute;
 		bottom: 10px;
 		right: 10px;
-    }
+	}
 </style>

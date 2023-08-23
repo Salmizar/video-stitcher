@@ -13,31 +13,28 @@
 	let videoHeight = 0;
 	let paused = true;
 	let video1 = {
-        trimStart:0,
-        trimEnd:0
-    };
+		trimStart: 0,
+		trimEnd: 0
+	};
 	let video2 = {
-        trimStart:0,
-        trimEnd:0
-    };
+		trimStart: 0,
+		trimEnd: 0
+	};
 	onMount(() => {
 		api_get(api_url + '/' + sessionId)
 			.then((videoFileNames) => {
-				const isSecondVideo = (element, index) => index > 0 && element.fileName.indexOf('png') === -1;
+				const isSecondVideo = (element, index) =>
+					index > 0 && element.fileName.indexOf('png') === -1;
 				const video2Index = Array(videoFileNames)[0].findIndex(isSecondVideo);
 				if (videoFileNames.length > 0) {
 					video1 = {
 						url: api_url + '/files/' + sessionId + '?filename=' + videoFileNames[0].fileName,
-                        thumbnails: videoFileNames.slice(1,video2Index)
+						thumbnails: videoFileNames.slice(1, video2Index)
 					};
 					video2 = {
 						url:
-							api_url +
-							'/files/' +
-							sessionId +
-							'?filename=' +
-							videoFileNames[video2Index].fileName,
-                            thumbnails: videoFileNames.slice(video2Index+1)
+							api_url + '/files/' + sessionId + '?filename=' + videoFileNames[video2Index].fileName,
+						thumbnails: videoFileNames.slice(video2Index + 1)
 					};
 				} else {
 					alert(`This session doesn't exist`);
@@ -52,37 +49,38 @@
 	const videoLoaded = (e) => {
 		if (e.currentTarget.id === 'video1') {
 			video1.width = e.currentTarget.videoWidth;
-            video1.height = e.currentTarget.videoHeight;  
+			video1.height = e.currentTarget.videoHeight;
 			video1.duration = e.currentTarget.duration;
-            video1.target = e.currentTarget;
+			video1.target = e.currentTarget;
 		} else {
 			video2.width = e.currentTarget.videoWidth;
 			video2.height = e.currentTarget.videoHeight;
 			video2.duration = e.currentTarget.duration;
-            video2.target = e.currentTarget;
+			video2.target = e.currentTarget;
 		}
 		if (videoWidth < e.currentTarget.videoWidth) {
-            videoWidth = e.currentTarget.videoWidth;
-        }
-        if (videoHeight < e.currentTarget.videoHeight) {
-            videoHeight = e.currentTarget.videoHeight;
-        }
-        if (video1.duration && video2.duration) {
-	        const totalTime = Math.floor(video1.duration + video2.duration);
-            video1.percentageOfTotalTime = Math.floor(video1.duration)/totalTime*100;
-            video2.percentageOfTotalTime = Math.floor(video2.duration)/totalTime*100;
-            video1.target.addEventListener('ended', videoEnded);
-            video2.target.addEventListener('ended', videoEnded);
-        }
+			videoWidth = e.currentTarget.videoWidth;
+		}
+		if (videoHeight < e.currentTarget.videoHeight) {
+			videoHeight = e.currentTarget.videoHeight;
+		}
+		if (video1.duration && video2.duration) {
+			const totalTime = Math.floor(video1.duration + video2.duration);
+			video1.percentageOfTotalTime = (Math.floor(video1.duration) / totalTime) * 100;
+			video2.percentageOfTotalTime = (Math.floor(video2.duration) / totalTime) * 100;
+			video1.target.addEventListener('ended', videoEnded);
+			video2.target.addEventListener('ended', videoEnded);
+			//console.log(video2);
+		}
 	};
 	const focusVideo = (e) => {
 		if (Number(video1.target.style.zIndex) === e.detail) {
-			video1.target.style.zIndex = ((e.detail===1)?2:1);
-        	video2.target.style.zIndex = ((e.detail===2)?2:1);
+			video1.target.style.zIndex = e.detail === 1 ? 2 : 1;
+			video2.target.style.zIndex = e.detail === 2 ? 2 : 1;
 		}
 	};
-	const togglePlay = (e) => {
-		if (Number(video1.target.style.zIndex)===2) {
+	const togglePlay = () => {
+		if (Number(video1.target.style.zIndex) === 2) {
 			if (paused) {
 				video1.target.play();
 			} else {
@@ -96,10 +94,10 @@
 			}
 		}
 		paused = !paused;
-	}
-    const videoEnded = (e) => {
+	};
+	const videoEnded = (e) => {
 		if (!paused) {
-			if (e.target.id ==='video1') {
+			if (e.target.id === 'video1') {
 				video1.target.style.zIndex = 1;
 				video2.target.style.zIndex = 2;
 				video2.target.play();
@@ -110,7 +108,7 @@
 				paused = true;
 			}
 		}
-    };
+	};
 </script>
 
 <div class="container">
@@ -122,48 +120,66 @@
 	<main>
 		<div class="video-container" style="max-width: {videoWidth}px; max-height: {videoHeight}px;">
 			{#if video1.url}
-				<video style="z-index:2;" on:loadedmetadata={videoLoaded} id="video1" width={videoWidth} height={videoHeight}>
+				<video
+					style="z-index:2;"
+					on:loadedmetadata={videoLoaded}
+					id="video1"
+					width={videoWidth}
+					height={videoHeight}
+				>
 					<source src={video1.url} type="video/mp4" />
 					Your browser does not support the video tag.
 				</video>
 			{/if}
 			{#if video2.url}
-				<video style="z-index:1;" on:loadedmetadata={videoLoaded} id="video2" width={videoWidth} height={videoHeight}>
+				<video
+					style="z-index:1;"
+					on:loadedmetadata={videoLoaded}
+					id="video2"
+					width={videoWidth}
+					height={videoHeight}
+				>
 					<source src={video2.url} type="video/mp4" />
 					Your browser does not support the video tag.
 				</video>
 			{/if}
 			{#if video1.duration && video2.duration}
 				<div class="video-controls" style="top: {videoHeight - 30}px;">
-					<Controls on:focusVideo={focusVideo} on:togglePlay={togglePlay} paused={paused} video1={video1} video2={video2} />
+					<Controls
+						on:focusVideo={focusVideo}
+						on:togglePlay={togglePlay}
+						{paused}
+						{video1}
+						{video2}
+					/>
 				</div>
 			{/if}
 		</div>
 	</main>
 	<footer>
-        {#if video1.duration && video2.duration}
-            <Timeline on:focusVideo={focusVideo} video1={video1} video2={video2} />
-        {/if}
-        <Trim />
-        <Export />
-    </footer>
+		{#if video1.duration && video2.duration}
+			<Timeline on:focusVideo={focusVideo} {video1} {video2} />
+		{/if}
+		<Trim />
+		<Export />
+	</footer>
 </div>
 
 <style>
 	:root {
 		--footer-height: 175px;
 		--header-height: 30px;
-        --min-width: 300px;
-        --min-height: 300px;
+		--min-width: 300px;
+		--min-height: 300px;
 	}
 	.container {
 		position: relative;
 		height: 100vh;
-        min-width: var(--min-width);
+		min-width: var(--min-width);
 	}
 	header {
 		width: 100vw;
-        min-width: var(--min-width);
+		min-width: var(--min-width);
 		height: var(--header-height);
 		box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
 	}
@@ -175,7 +191,7 @@
 	main {
 		position: absolute;
 		width: 100vw;
-        min-width: var(--min-width);
+		min-width: var(--min-width);
 		top: var(--header-height);
 		bottom: var(--footer-height);
 		border-top: 1px solid #000;
@@ -184,7 +200,7 @@
 	}
 	.video-controls {
 		position: relative;
-        z-index: 3;
+		z-index: 3;
 	}
 	.video-container {
 		width: 100%;
@@ -201,7 +217,7 @@
 		position: absolute;
 		bottom: 0px;
 		width: 100vw;
-        min-width: var(--min-width);
+		min-width: var(--min-width);
 		height: var(--footer-height);
 	}
 </style>
