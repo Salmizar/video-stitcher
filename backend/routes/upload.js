@@ -50,9 +50,19 @@ router.get('/:sessionId', (req, res) => {
         });
     }
 })
+
+3
 router.post('/', upload.single("file"), function (request, response) {
     //make thumbnails
     const saveLocation = savedFilesFolder + request.query.session;
+    const numOfThumbs = Number(request.query.p);
+    timestamps = ["0%"];
+    for (var i = 1; i < numOfThumbs - 1; i++) {
+        timestamps.push(Math.round((100 / (numOfThumbs - 1)) * i) + "%");
+    }
+    if (numOfThumbs > 1) {
+        timestamps.push("99.5%");
+    }
     if (fs.existsSync(saveLocation)) {
         ffmpeg(saveLocation + '/' + request.query.filename)
             .setFfmpegPath(process.env.FFMPEG)
@@ -62,7 +72,7 @@ router.post('/', upload.single("file"), function (request, response) {
                 //console.log('Screenshots taken');
             })
             .screenshots({
-                count: request.query.p,
+                timestamps: timestamps,
                 filename: '%b.png',
                 folder: saveLocation,
                 size: '112x85'
