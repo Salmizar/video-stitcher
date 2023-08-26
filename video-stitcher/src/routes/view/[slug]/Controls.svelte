@@ -16,9 +16,13 @@
 	let currentTime = '00:00';
 	let canSkipBack = false;
 	let canSkipForward = true;
+	let canPlay = true;
 	const videoTimeUpdated = (e) => {
-		canSkipBack = video1.target.currentTime > 0;
-		canSkipForward = e.target.id === 'video1' && e.target.currentTime < e.target.duration;
+		let notInTrim = video1.trim === '' && video2.trim === '';
+		canSkipBack = video1.target.currentTime-video1.trimStart > 0 && notInTrim;
+		canSkipForward = e.target.id === 'video1' && e.target.currentTime < e.target.duration-video1.trimStart && notInTrim;
+
+		canPlay =  notInTrim;
 		let timePadding = 0;
 		if (e.target.id === 'video2') {
 			timePadding = video1.duration;
@@ -34,17 +38,19 @@
 		video2.target.muted = muted;
 	};
 	const togglePlay = () => {
-		dispatch('togglePlay');
-		paused = !paused;
+		if (canPlay) {
+			dispatch('togglePlay');
+			paused = !paused;
+		}
 	};
 	const skipForward = () => {
 		if (canSkipForward) {
 			if (!video1.target.paused) {
 				togglePlay();
 			}
-			video1.target.currentTime = Math.round(video1.target.duration);
-			video2.target.currentTime = 0;
-			dispatch('focusVideo', 2);
+			video1.target.currentTime = video1.target.duration - video1.trimStart;
+			video2.target.currentTime = video2.trimStart;
+			dispatch('focusVideo', {id: 2, pause: false});
 		}
 	};
 	const skipBack = () => {
@@ -52,11 +58,14 @@
 			if (!video2.target.paused || !video1.target.paused) {
 				togglePlay();
 			}
-			if (Number(video2.target.style.zIndex) === 2 && video2.target.currentTime === 0) {
-				video1.target.currentTime = 0;
-				dispatch('focusVideo', 1);
+			if (video2.active && video2.target.currentTime === video2.trimStart) {
+				dispatch('focusVideo', {id: 1, pause: false});
+				video1.target.currentTime = video1.trimStart;
+			} else if (video1.active && video1.target.currentTime>video1.trimStart) {
+				video1.target.currentTime = video1.trimStart;
+
 			}
-			video2.target.currentTime = 0;
+			video2.target.currentTime = video2.trimStart;
 		}
 	};
 </script>
@@ -75,12 +84,12 @@
 			<SkipPrevious width="24" height="24" />
 		</div>
 		<div
-			class="play"
 			role="button"
 			tabindex="-3"
 			title="Toggle Play/Pause"
 			on:click={togglePlay}
 			on:keypress={skipBack}
+			class={'play '+(canPlay ? 'enabled' : 'disabled')}
 		>
 			{#if paused}
 				<Play width="24" height="24" />
@@ -116,13 +125,6 @@
 </div>
 
 <style>
-	.enabled {
-		cursor: pointer;
-		opacity: 1;
-	}
-	.disabled {
-		opacity: 0.5;
-	}
 	.controls {
 		color: white;
 		display: flex;
@@ -131,6 +133,7 @@
 		height: 30px;
 	}
 	.time {
+		cursor: default;
 		font-size: 13px;
 		position: absolute;
 		top: 3px;
@@ -149,5 +152,13 @@
 		cursor: pointer;
 		position: absolute;
 		right: 10px;
+	}
+	.enabled {
+		cursor: pointer;
+		opacity: 1;
+	}
+	.disabled {
+		opacity: 0.5;
+		cursor: default;
 	}
 </style>

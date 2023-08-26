@@ -13,10 +13,14 @@
 	let videoHeight = 0;
 	let paused = true;
 	let video1 = {
+		trim: '',
+		active: true,
 		trimStart: 0,
 		trimEnd: 0
 	};
 	let video2 = {
+		trim: '',
+		active:false,
 		trimStart: 0,
 		trimEnd: 0
 	};
@@ -27,15 +31,11 @@
 					index > 0 && element.fileName.indexOf('png') === -1;
 				const video2Index = Array(videoFileNames)[0].findIndex(isSecondVideo);
 				if (videoFileNames.length > 0) {
-					video1 = {
-						url: api_url + '/files/' + sessionId + '?filename=' + videoFileNames[0].fileName,
-						thumbnails: videoFileNames.slice(1, video2Index)
-					};
-					video2 = {
-						url:
-							api_url + '/files/' + sessionId + '?filename=' + videoFileNames[video2Index].fileName,
-						thumbnails: videoFileNames.slice(video2Index + 1)
-					};
+					video1.url = api_url + '/files/' + sessionId + '?filename=' + videoFileNames[0].fileName;
+					video1.thumbnails = videoFileNames.slice(1, video2Index);
+					video2.url =
+						api_url + '/files/' + sessionId + '?filename=' + videoFileNames[video2Index].fileName;
+					video2.thumbnails = videoFileNames.slice(video2Index + 1);
 				} else {
 					alert(`This session doesn't exist`);
 					goto('/');
@@ -70,17 +70,21 @@
 			video2.percentageOfTotalTime = (Math.floor(video2.duration) / totalTime) * 100;
 			video1.target.addEventListener('ended', videoEnded);
 			video2.target.addEventListener('ended', videoEnded);
-			//console.log(video2);
 		}
 	};
 	const focusVideo = (e) => {
-		if (Number(video1.target.style.zIndex) === e.detail) {
-			video1.target.style.zIndex = e.detail === 1 ? 2 : 1;
-			video2.target.style.zIndex = e.detail === 2 ? 2 : 1;
+		if (Number(video1.target.style.zIndex) === e.detail.id) {
+			video1.active = e.detail.id === 1;
+			video2.active = e.detail.id === 2;
+			video1.target.style.zIndex = video1.active ? 2 : 1;
+			video2.target.style.zIndex = video2.active ? 2 : 1;
+			if (e.detail.pause) {
+				paused = true;
+			}
 		}
 	};
 	const togglePlay = () => {
-		if (Number(video1.target.style.zIndex) === 2) {
+		if (video1.active) {
 			if (paused) {
 				video1.target.play();
 			} else {
@@ -97,14 +101,14 @@
 	};
 	const videoEnded = (e) => {
 		if (!paused) {
+				video1.active = !e.target.id === 'video1';
+				video2.active = !video1.active;
+				video1.target.style.zIndex = (video1.active?2:1);
+				video2.target.style.zIndex = (video2.active?2:1);
 			if (e.target.id === 'video1') {
-				video1.target.style.zIndex = 1;
-				video2.target.style.zIndex = 2;
 				video2.target.play();
 			} else {
-				video1.target.style.zIndex = 2;
-				video2.target.style.zIndex = 1;
-				video1.target.currentTime = 0;
+				video1.target.currentTime = video1.trimStart;
 				paused = true;
 			}
 		}
@@ -159,8 +163,8 @@
 	<footer>
 		{#if video1.duration && video2.duration}
 			<Timeline on:focusVideo={focusVideo} {video1} {video2} />
+			<Trim on:focusVideo={focusVideo} {video1} {video2} />
 		{/if}
-		<Trim />
 		<Export />
 	</footer>
 </div>

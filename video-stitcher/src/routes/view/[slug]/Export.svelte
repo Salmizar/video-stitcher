@@ -1,5 +1,5 @@
 <div class="export-options">
-	<button title="Export Videos" class="btn btn-blue"> export </button>
+	<button title="Export Video" class="btn btn-blue"> export </button>
 </div>
 
 <style>

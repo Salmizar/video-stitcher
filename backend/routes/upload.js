@@ -50,18 +50,16 @@ router.get('/:sessionId', (req, res) => {
         });
     }
 })
-
-3
 router.post('/', upload.single("file"), function (request, response) {
     //make thumbnails
     const saveLocation = savedFilesFolder + request.query.session;
     const numOfThumbs = Number(request.query.p);
-    timestamps = ["0%"];
+    let timestamps = ["0%"];
     for (var i = 1; i < numOfThumbs - 1; i++) {
         timestamps.push(Math.round((100 / (numOfThumbs - 1)) * i) + "%");
     }
     if (numOfThumbs > 1) {
-        timestamps.push("99.5%");
+        timestamps.push("99.5%");//can't use 100%, some videos will not generate a thumb.
     }
     if (fs.existsSync(saveLocation)) {
         ffmpeg(saveLocation + '/' + request.query.filename)
