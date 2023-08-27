@@ -146,11 +146,11 @@
 		</div>
 		<div
 			class="thumbnails-container"
-			style="width: calc( calc( 100vw - {padding * 2}px ) * {video1.percentageOfTotalTime / 100} );"
+			style="width: calc( 100% * {video1.percentageOfTotalTime / 100} );"
 		>
 			<div
 				id="v1-trim-start"
-				style="width: calc( calc( 100vw - {padding * 2}px ) * {trim.v1Start});"
+				style="width: calc( 100% * {trim.v1Start});"
 				class="video-trim-start"
 			/>
 			{#each video1.thumbnails as thumb, i}
@@ -166,17 +166,17 @@
 			{/each}
 			<div
 				id="v1-trim-end"
-				style="width: calc( calc( 100vw - {padding * 2}px ) * {trim.v1End});"
+				style="width: calc( 100% * {trim.v1End});"
 				class="video-trim-end"
 			/>
 		</div>
 		<div
 			class="thumbnails-container"
-			style="width:calc( calc( 100vw - {padding * 2}px ) * {video2.percentageOfTotalTime / 100} );"
+			style="width:calc( 100% * {video2.percentageOfTotalTime / 100} );"
 		>
 			<div
 				id="v2-trim-start"
-				style="width: calc( calc( 100vw - {padding * 2}px ) * {trim.v2Start});"
+				style="width: calc( 100% * {trim.v2Start});"
 				class="video-trim-start"
 			/>
 			{#each video2.thumbnails as thumb, i}
@@ -192,7 +192,7 @@
 			{/each}
 			<div
 				id="v2-trim-end"
-				style="width: calc( calc( 100vw - {padding * 2}px ) * {trim.v2End});"
+				style="width: calc( 100% * {trim.v2End});"
 				class="video-trim-end"
 			/>
 		</div>
@@ -229,14 +229,13 @@
 		white-space: nowrap;
 		overflow: hidden;
 		padding: 13px var(--timeline-padding) 0 var(--timeline-padding);
-		width: 100vw;
 		height: 115px;
 		background-color: white;
 	}
 	.timeline-bg {
 		position: absolute;
-		padding: var(--timeline-padding);
-		width: calc(100vw - var(--timeline-padding) - var(--timeline-padding));
+		left: var(--timeline-padding);
+		right: var(--timeline-padding);
 		height: var(--thumb-height);
 		border: 1px solid black;
 		background-image: url('../timeline.png');
@@ -306,6 +305,7 @@
 		float: left;
 		display: flex;
 		justify-content: space-between;
+		overflow: hidden;
 	}
 	.thumbnail {
 		display: flex;

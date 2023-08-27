@@ -9,8 +9,10 @@
 	import Export from './Export.svelte';
 	const api_url = import.meta.env.VITE_API_URL;
 	const sessionId = $page.params.slug;
-	let videoWidth = 0;
 	let videoHeight = 0;
+	let videoWidth = 0;
+	let maxVideoWidth = 0;
+	let maxVideoHeight = 0;
 	let paused = true;
 	let video1 = {
 		trim: '',
@@ -20,7 +22,7 @@
 	};
 	let video2 = {
 		trim: '',
-		active:false,
+		active: false,
 		trimStart: 0,
 		trimEnd: 0
 	};
@@ -45,7 +47,26 @@
 				console.log('error', error);
 				goto('/');
 			});
+		window.addEventListener('resize', resizeVideoContainer);
+		return () => {
+			window.removeEventListener('resize', resizeVideoContainer);
+		};
 	});
+	const resizeVideoContainer = () => {
+		let headerHeight = 30;
+		let footerHeight = 175;
+		let viewPortWidth = window.innerWidth;
+		let viewPortHeight = window.innerHeight - headerHeight - footerHeight;
+		maxVideoHeight = Math.round(viewPortHeight > videoHeight ? videoHeight : viewPortHeight);
+		maxVideoWidth = Math.round(viewPortWidth > videoWidth ? videoWidth : viewPortWidth);
+		let width_scale = viewPortWidth / videoWidth;
+		let height_scale = viewPortHeight / videoHeight;
+		let lower_scale = width_scale < height_scale ? width_scale : height_scale;
+		if (lower_scale < 1) {
+			maxVideoHeight = Math.round(videoHeight * lower_scale);
+			maxVideoWidth = Math.round(videoWidth * lower_scale);
+		}
+	};
 	const videoLoaded = (e) => {
 		if (e.currentTarget.id === 'video1') {
 			video1.width = e.currentTarget.videoWidth;
@@ -58,29 +79,30 @@
 			video2.duration = e.currentTarget.duration;
 			video2.target = e.currentTarget;
 		}
-		if (videoWidth < e.currentTarget.videoWidth) {
-			videoWidth = e.currentTarget.videoWidth;
+		if (maxVideoWidth < e.currentTarget.videoWidth) {
+			maxVideoWidth = e.currentTarget.videoWidth;
 		}
-		if (videoHeight < e.currentTarget.videoHeight) {
-			videoHeight = e.currentTarget.videoHeight;
+		if (maxVideoHeight < e.currentTarget.videoHeight) {
+			maxVideoHeight = e.currentTarget.videoHeight;
 		}
 		if (video1.duration && video2.duration) {
-			const totalTime = Math.floor(video1.duration + video2.duration);
-			video1.percentageOfTotalTime = (Math.floor(video1.duration) / totalTime) * 100;
-			video2.percentageOfTotalTime = (Math.floor(video2.duration) / totalTime) * 100;
+			const combinedTime = Math.floor(video1.duration + video2.duration);
+			video1.percentageOfTotalTime = (Math.floor(video1.duration) / combinedTime) * 100;
+			video2.percentageOfTotalTime = (Math.floor(video2.duration) / combinedTime) * 100;
 			video1.target.addEventListener('ended', videoEnded);
 			video2.target.addEventListener('ended', videoEnded);
+			videoWidth = maxVideoWidth;
+			videoHeight = maxVideoHeight;
+			resizeVideoContainer();
 		}
 	};
 	const focusVideo = (e) => {
-		if (Number(video1.target.style.zIndex) === e.detail.id) {
-			video1.active = e.detail.id === 1;
-			video2.active = e.detail.id === 2;
-			video1.target.style.zIndex = video1.active ? 2 : 1;
-			video2.target.style.zIndex = video2.active ? 2 : 1;
-			if (e.detail.pause) {
-				paused = true;
-			}
+		video1.active = e.detail.id === 1;
+		video2.active = e.detail.id === 2;
+		video1.target.style.display = video1.active ? 'block' : 'none';
+		video2.target.style.display = video2.active ? 'block' : 'none';
+		if (e.detail.pause) {
+			paused = true;
 		}
 	};
 	const togglePlay = () => {
@@ -101,10 +123,10 @@
 	};
 	const videoEnded = (e) => {
 		if (!paused) {
-				video1.active = !e.target.id === 'video1';
-				video2.active = !video1.active;
-				video1.target.style.zIndex = (video1.active?2:1);
-				video2.target.style.zIndex = (video2.active?2:1);
+			video1.active = !e.target.id === 'video1';
+			video2.active = !video1.active;
+			video1.target.style.display = video1.active ? 'block' : 'none';
+			video2.target.style.display = video2.active ? 'block' : 'none';
 			if (e.target.id === 'video1') {
 				video2.target.play();
 			} else {
@@ -115,40 +137,31 @@
 	};
 </script>
 
-<div class="container">
+<div class="app-container">
 	<header>
 		<a title="Video X Stitcher" href="/">
 			<img alt="Video X Stitcher" width="120" height="30" src="../videoxstitcher.png" />
 		</a>
 	</header>
 	<main>
-		<div class="video-container" style="max-width: {videoWidth}px; max-height: {videoHeight}px;">
+		<div
+			class="video-container"
+			style="height:{videoHeight}px; width:{videoWidth}px; max-height:{maxVideoHeight}px; max-width:{maxVideoWidth}px;"
+		>
 			{#if video1.url}
-				<video
-					style="z-index:2;"
-					on:loadedmetadata={videoLoaded}
-					id="video1"
-					width={videoWidth}
-					height={videoHeight}
-				>
+				<video style="display:block;" on:loadedmetadata={videoLoaded} id="video1">
 					<source src={video1.url} type="video/mp4" />
 					Your browser does not support the video tag.
 				</video>
 			{/if}
 			{#if video2.url}
-				<video
-					style="z-index:1;"
-					on:loadedmetadata={videoLoaded}
-					id="video2"
-					width={videoWidth}
-					height={videoHeight}
-				>
+				<video style="display:none;" on:loadedmetadata={videoLoaded} id="video2">
 					<source src={video2.url} type="video/mp4" />
 					Your browser does not support the video tag.
 				</video>
 			{/if}
 			{#if video1.duration && video2.duration}
-				<div class="video-controls" style="top: {videoHeight - 30}px;">
+				<div class="video-controls">
 					<Controls
 						on:focusVideo={focusVideo}
 						on:togglePlay={togglePlay}
@@ -173,16 +186,16 @@
 	:root {
 		--footer-height: 175px;
 		--header-height: 30px;
-		--min-width: 300px;
+		--min-width: 200px;
 		--min-height: 300px;
 	}
-	.container {
+	.app-container {
 		position: relative;
 		height: 100vh;
 		min-width: var(--min-width);
 	}
 	header {
-		width: 100vw;
+		width: 100%;
 		min-width: var(--min-width);
 		height: var(--header-height);
 		box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
@@ -194,33 +207,41 @@
 	}
 	main {
 		position: absolute;
-		width: 100vw;
+		width: 100%;
 		min-width: var(--min-width);
 		top: var(--header-height);
 		bottom: var(--footer-height);
 		border-top: 1px solid #000;
 		border-bottom: 1px solid #000;
 		box-shadow: 0 -10px 5px -10px rgba(0, 0, 0, 0.4) inset;
+		justify-content: center;
+		display: flex;
 	}
 	.video-controls {
-		position: relative;
+		position: absolute;
+		width: 100%;
 		z-index: 3;
+		bottom: 0px;
 	}
 	.video-container {
-		width: 100%;
+		width: auto;
+		height: auto;
+		aspect-ratio: 16 / 9;
 		margin: auto;
+		background-color: #000;
 		position: relative;
-		top: calc(50% - 240px);
+		justify-content: center;
+		display: flex;
 	}
 	.video-container video {
-		position: absolute;
-		left: 0px;
-		top: 0px;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
 	}
 	footer {
 		position: absolute;
 		bottom: 0px;
-		width: 100vw;
+		width: 100%;
 		min-width: var(--min-width);
 		height: var(--footer-height);
 	}
