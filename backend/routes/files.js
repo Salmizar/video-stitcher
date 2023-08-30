@@ -4,6 +4,7 @@ const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 const savedFilesFolder = process.env.SAVED_FILES_FOLDER;
 
+//download video/thumbnail
 router.get('/:sessionId', (req, res) => {
     try {
         const filePath = savedFilesFolder + req.params.sessionId + '/' + req.query.filename;

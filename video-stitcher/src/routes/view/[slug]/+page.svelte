@@ -7,13 +7,14 @@
 	import Timeline from './Timeline.svelte';
 	import Trim from './Trim.svelte';
 	import Export from './Export.svelte';
-	const api_url = import.meta.env.VITE_API_URL;
-	const sessionId = $page.params.slug;
+	import Processing from './Processing.svelte';
 	let videoHeight = 0;
 	let videoWidth = 0;
 	let maxVideoWidth = 0;
 	let maxVideoHeight = 0;
 	let paused = true;
+	let trimOpened = false;
+	let processingVideo = 0;
 	let video1 = {
 		trim: '',
 		active: true,
@@ -27,14 +28,18 @@
 		trimEnd: 0
 	};
 	onMount(() => {
+		const api_url = import.meta.env.VITE_API_URL;
+		const sessionId = $page.params.slug;
 		api_get(api_url + '/' + sessionId)
 			.then((videoFileNames) => {
 				const isSecondVideo = (element, index) =>
 					index > 0 && element.fileName.indexOf('png') === -1;
 				const video2Index = Array(videoFileNames)[0].findIndex(isSecondVideo);
 				if (videoFileNames.length > 0) {
+					video1.fileName = videoFileNames[0].fileName;
 					video1.url = api_url + '/files/' + sessionId + '?filename=' + videoFileNames[0].fileName;
 					video1.thumbnails = videoFileNames.slice(1, video2Index);
+					video2.fileName = videoFileNames[video2Index].fileName;
 					video2.url =
 						api_url + '/files/' + sessionId + '?filename=' + videoFileNames[video2Index].fileName;
 					video2.thumbnails = videoFileNames.slice(video2Index + 1);
@@ -143,7 +148,7 @@
 			<img alt="Video X Stitcher" width="120" height="30" src="../videoxstitcher.png" />
 		</a>
 	</header>
-	<main>
+	<main class={trimOpened ? 'main-trim-opened' : ''}>
 		<div
 			class="video-container"
 			style="height:{videoHeight}px; width:{videoWidth}px; max-height:{maxVideoHeight}px; max-width:{maxVideoWidth}px;"
@@ -173,18 +178,19 @@
 			{/if}
 		</div>
 	</main>
-	<footer>
+	<footer class={trimOpened ? 'footer-trim-opened' : ''}>
 		{#if video1.duration && video2.duration}
 			<Timeline on:focusVideo={focusVideo} {video1} {video2} />
-			<Trim on:focusVideo={focusVideo} {video1} {video2} />
+			<Trim on:focusVideo={focusVideo} {video1} {video2} bind:trimOpened {processingVideo} />
+			<Export {videoWidth} {videoHeight} {video1} {video2} bind:processingVideo />
 		{/if}
-		<Export />
 	</footer>
 </div>
-
+<Processing bind:processingVideo />
 <style>
 	:root {
 		--footer-height: 175px;
+		--expanded-footer-height: 210px;
 		--header-height: 30px;
 		--min-width: 200px;
 		--min-height: 300px;
@@ -216,6 +222,7 @@
 		box-shadow: 0 -10px 5px -10px rgba(0, 0, 0, 0.4) inset;
 		justify-content: center;
 		display: flex;
+		transition: bottom 0.2s ease 0s;
 	}
 	.video-controls {
 		position: absolute;
@@ -244,5 +251,22 @@
 		width: 100%;
 		min-width: var(--min-width);
 		height: var(--footer-height);
+		transition: height 0.2s ease 0s;
+	}
+	@media screen and (max-width: 310px) {
+		footer {
+			height: var(--expanded-footer-height);
+		}
+		main {
+			bottom: var(--expanded-footer-height);
+		}
+	}
+	@media screen and (max-width: 425px) {
+		.footer-trim-opened {
+			height: var(--expanded-footer-height);
+		}
+		.main-trim-opened {
+			bottom: var(--expanded-footer-height);
+		}
 	}
 </style>

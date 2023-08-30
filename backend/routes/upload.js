@@ -5,7 +5,6 @@ const multer = require('multer');
 const ffmpeg = require('fluent-ffmpeg');
 const videoFormats = 'mp4,ogg';
 const savedFilesFolder = process.env.SAVED_FILES_FOLDER;
-
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         if (isValidFormat(req.query.filename)) {
@@ -27,16 +26,19 @@ function isValidFormat(filename) {
     return videoFormats.indexOf(format) > -1;
 }
 const upload = multer({ storage: storage });
+//Get Video Sessions File Details
 router.get('/:sessionId', (req, res) => {
     try {
         let sessionFolder = savedFilesFolder + req.params.sessionId;
         if (fs.existsSync(sessionFolder)) {
             var fileNames = [];
-            fs.readdir(sessionFolder, (err, files) => {
+            fs.readdir(sessionFolder, { withFileTypes: true }, (err, files) => {
                 files.forEach(file => {
-                    fileNames.push({
-                        "fileName": file
-                    });
+                    if (file.isFile()) {
+                        fileNames.push({
+                            "fileName": file.name
+                        });
+                    }
                 });
                 res.status(200).json(fileNames);
             });
@@ -50,6 +52,7 @@ router.get('/:sessionId', (req, res) => {
         });
     }
 })
+//Post Video File for processing
 router.post('/', upload.single("file"), function (request, response) {
     //make thumbnails
     const saveLocation = savedFilesFolder + request.query.session;

@@ -33,10 +33,10 @@
 				(innerWidth / 100) * video1.percentageOfTotalTime +
 				Math.round((((innerWidth / 100) * video2.percentageOfTotalTime) / 100) * percentagePlayed);
 		}
-		trim.v1Start = ((video1.trimStart / video1.duration) * video1.percentageOfTotalTime) / 100;
-		trim.v1End = ((video1.trimEnd / video1.duration) * video1.percentageOfTotalTime) / 100;
-		trim.v2Start = ((video2.trimStart / video2.duration) * video2.percentageOfTotalTime) / 100;
-		trim.v2End = ((video2.trimEnd / video2.duration) * video2.percentageOfTotalTime) / 100;
+		trim.v1Start = video1.trimStart / video1.duration;
+		trim.v1End = video1.trimEnd / video1.duration;
+		trim.v2Start = video2.trimStart / video2.duration;
+		trim.v2End = video2.trimEnd / video2.duration;
 		if (
 			video1.trimEnd > 0 &&
 			!video1.target.paused &&
@@ -94,9 +94,9 @@
 		return newTime;
 	};
 	const timelineScrub = (e) => {
-		if (e.buttons === 1) {
-			e.preventDefault();
-			let clientX = e.clientX - padding;
+		e.preventDefault();
+		if (e.buttons === 1 && e.type==='mousemove' || e.type==='touchmove') {
+			let clientX = ((e.clientX)?e.clientX:e.touches[0].pageX) - padding;
 			let videoPixelWidth = (e.target.clientWidth / 100) * video1.percentageOfTotalTime;
 			if ((clientX <= videoPixelWidth && video2.trim==='') || video1.trim != '') {
 				let newTime = constrainTime(video1, clientX, videoPixelWidth);
@@ -104,7 +104,7 @@
 					delayVideoTimeUpdate(video1, 1, newTime);
 				}
 			} else {
-				clientX = e.clientX - padding - videoPixelWidth;
+				clientX = clientX - padding - videoPixelWidth;
 				videoPixelWidth = (e.target.clientWidth / 100) * video2.percentageOfTotalTime;
 				let newTime = constrainTime(video2, clientX, videoPixelWidth);
 				if (video2.target.currentTime != newTime) {
@@ -200,6 +200,9 @@
 	<div
 		role="none"
 		class="timeline-scrubber"
+		on:drag={timelineScrub}
+		on:touchstart={timelineScrub}
+		on:touchmove={timelineScrub}
 		on:mousemove={timelineScrub}
 		on:mousedown={timelineScrub}
 	/>
@@ -209,20 +212,6 @@
 	:root {
 		--timeline-padding: 10px;
 		--thumb-height: 85px;
-	}
-	::-webkit-scrollbar {
-		height: 10px;
-	}
-	::-webkit-scrollbar-track {
-		background: #f1f1f1;
-		border-radius: 5px;
-	}
-	::-webkit-scrollbar-thumb {
-		background: #d1d1d1;
-		border-radius: 5px;
-	}
-	::-webkit-scrollbar-thumb:hover {
-		background: #c1c1c1;
 	}
 	.timeline {
 		position: relative;
