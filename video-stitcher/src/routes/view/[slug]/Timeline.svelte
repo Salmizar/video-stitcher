@@ -95,7 +95,7 @@
 	};
 	const timelineScrub = (e) => {
 		e.preventDefault();
-		if (e.buttons === 1 && e.type==='mousemove' || e.type==='touchmove') {
+		if ((e.buttons === 1 && e.type==='mousemove') || e.type==='mousedown' || e.type==='touchmove') {
 			let clientX = ((e.clientX)?e.clientX:e.touches[0].pageX) - padding;
 			let videoPixelWidth = (e.target.clientWidth / 100) * video1.percentageOfTotalTime;
 			if ((clientX <= videoPixelWidth && video2.trim==='') || video1.trim != '') {

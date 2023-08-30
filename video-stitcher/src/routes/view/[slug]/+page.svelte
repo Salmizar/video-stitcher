@@ -206,6 +206,10 @@
 		height: var(--header-height);
 		box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
 	}
+	header a {
+		width: 125px;
+		display: block;
+	}
 	img {
 		position: relative;
 		top: -6px;
