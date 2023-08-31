@@ -14,4 +14,4 @@ Requirements, UI/UX design files can be found in:
 ```
 # Demo, run locally
 
-I will not be hosting a demo of this application due to the CPU requirements of FF-MPEG. See [Backend](https://github.com/Salmizar/video-stitcher/blob/main/backend/README.md) and [video-stitcher](https://github.com/Salmizar/video-stitcher/blob/main/video-stitcher/README.md) README.md files for instructions on how to run locally.
+I will not be hosting a demo of this application due to the CPU requirements of FF-MPEG. See [Backend](https://github.com/Salmizar/video-stitcher/blob/main/backend/README.md) and [client](https://github.com/Salmizar/video-stitcher/blob/main/client/README.md) README.md files for instructions on how to run locally.
