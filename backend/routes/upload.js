@@ -54,6 +54,7 @@ router.get('/:sessionId', (req, res) => {
 })
 //Post Video File for processing
 router.post('/', upload.single("file"), function (request, response) {
+    console.log('called');
     //make thumbnails
     const saveLocation = savedFilesFolder + request.query.session;
     const numOfThumbs = Number(request.query.p);
